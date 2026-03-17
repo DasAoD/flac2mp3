@@ -118,4 +118,4 @@ docker push dasaod/flac2mp3:latest
 
 ## License
 
-MIT
+[MIT](LICENSE)
