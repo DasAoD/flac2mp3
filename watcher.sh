@@ -1,8 +1,9 @@
 #!/bin/bash
-# flac2mp3-watcher v1.2 – Unraid-friendly: FLAC -> MP3 (320k), delete source, logrotate
+# flac2mp3-watcher v1.3 – Unraid-friendly: FLAC -> MP3 (320k), delete source, logrotate
+# Fixes v1.3: ffmpeg stdin isolation (< /dev/null), inotifywait via process substitution
 set -euo pipefail
 
-VERSION="1.2"
+VERSION="1.3"
 
 ROOT="${ROOT:-/media}"
 UMASK_VAL="${UMASK_VAL:-002}"
@@ -31,7 +32,6 @@ rotate_logs(){
   fi
 }
 
-#abspath(){ [[ "$1" = /* ]] && echo "$1" || echo "${ROOT%/}/$1"; }
 mp3_of(){ local f="$1"; echo "${f%.flac}.mp3"; }
 
 mkdir -p "$(dirname "$LOGFILE")"; chmod 775 "$(dirname "$LOGFILE")" || true
@@ -44,25 +44,23 @@ nice="nice -n 5"; ionice="ionice -c2 -n4"
 
 convert_one(){
   local src="$1"
-  # Safety-Guard: immer absolut machen
   [[ "$src" = /* ]] || src="$ROOT/${src#./}"
 
   local dst tmp
   dst="$(mp3_of "$src")"
   tmp="${dst}.tmp.mp3"
 
-  # Zielverzeichnis absichern (setgid für Gruppe users)
   install -d -m 2775 -o 99 -g 100 "$(dirname "$dst")"
 
-  # Überspringen, wenn MP3 existiert und neuer ist
   if [[ -f "$dst" && "$dst" -nt "$src" ]]; then
     log "Skip (aktuell): $dst"
     return 0
   fi
 
   log "Konvertiere: $src -> $dst"
+  # < /dev/null: ffmpeg darf nie von stdin lesen (würde inotify-Events konsumieren)
   if ${ionice} ${nice} ffmpeg -hide_banner -loglevel error -y \
-       -i "$src" -map_metadata 0 -c:a libmp3lame -b:a 320k -vn "$tmp"; then
+       -i "$src" -map_metadata 0 -c:a libmp3lame -b:a 320k -vn "$tmp" < /dev/null; then
     touch -r "$src" "$tmp"
     chown 99:100 "$tmp"; chmod 664 "$tmp"
     mv -f "$tmp" "$dst"
@@ -84,7 +82,8 @@ initial_scan(){
 
 watch_loop(){
   log "Watcher gestartet (inotify)…"
-  inotifywait -m -r -e CLOSE_WRITE,MOVED_TO --format '%w%f' "$ROOT" |
+  # Process substitution statt Pipe: while-Schleife hat eigenen stdin,
+  # kein Durchreichen von inotify-Events an ffmpeg möglich
   while IFS= read -r path; do
     fn="${path##*/}"
     shopt -s nocasematch
@@ -92,12 +91,11 @@ watch_loop(){
     [[ "$fn" =~ \.(part|tmp|temp)$ ]] && { shopt -u nocasematch; continue; }
     shopt -u nocasematch
 
-    # Pfad sicher absolut machen
     [[ "$path" = /* ]] || path="$ROOT/${path#./}"
 
     sleep 1
     convert_one "$path" || true
-  done
+  done < <(inotifywait -m -r -e CLOSE_WRITE,MOVED_TO --format '%w%f' "$ROOT")
 }
 
 initial_scan

@@ -1,4 +1,4 @@
-# dasaod/flac2mp3:1.2
+# dasaod/flac2mp3:1.3
 FROM alpine:3.20
 
 ENV ROOT=/media \
@@ -23,7 +23,7 @@ ENTRYPOINT ["/bin/bash","/app/watcher.sh"]
 # --- Metadata Labels (OCI) ---
 LABEL org.opencontainers.image.title="flac2mp3-watcher"
 LABEL org.opencontainers.image.description="Überwacht einen Ordner (inotify) und konvertiert FLAC zu MP3 (320k) in-place. Löscht Quell-Datei nach Erfolg. Unraid-friendly (UID 99/GID 100), Logrotation."
-LABEL org.opencontainers.image.version="1.2"
+LABEL org.opencontainers.image.version="1.3"
 LABEL org.opencontainers.image.url="https://hub.docker.com/r/dasaod/flac2mp3"
 LABEL org.opencontainers.image.documentation="https://hub.docker.com/r/dasaod/flac2mp3"
 LABEL org.opencontainers.image.licenses="MIT"
@@ -33,5 +33,5 @@ LABEL org.opencontainers.image.authors="DasAoD <das.aod@gmail.com>"
 LABEL org.opencontainers.image.vendor="dasaod"
 LABEL org.opencontainers.image.ref.name="dasaod/flac2mp3"
 LABEL org.opencontainers.image.base.name="alpine:3.20"
-LABEL org.opencontainers.image.revision="1.2.0"
-LABEL org.opencontainers.image.created="2025-11-06T23:03:00Z"
+LABEL org.opencontainers.image.revision="1.3.0"
+LABEL org.opencontainers.image.created="2026-05-17T00:00:00Z"
