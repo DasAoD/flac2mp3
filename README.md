@@ -4,6 +4,8 @@
 > Die primäre Entwicklung findet auf **[git.uliana.de/DasAoD/flac2mp3](https://git.uliana.de/DasAoD/flac2mp3)** statt.
 > Issues und Pull Requests bitte dort öffnen.
 
+[![Docker Hub](https://img.shields.io/docker/v/dasaod/flac2mp3?label=Docker%20Hub&logo=docker)](https://hub.docker.com/r/dasaod/flac2mp3)
+
 A lightweight Docker container that watches a directory tree for FLAC files and automatically converts them to MP3 (320k CBR) in-place. The source FLAC file is deleted after a successful conversion.
 
 Built on Alpine Linux with `ffmpeg` and `inotify-tools`. Unraid-friendly (runs as UID 99 / GID 100).
