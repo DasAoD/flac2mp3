@@ -54,6 +54,18 @@ docker run -d \
 
 ## Changelog
 
+### v0.1.6
+- ci: restrict workflow to Dockerfile and watcher.sh changes
+
+### v0.1.5
+- docs: add Docker Hub version badge
+
+### v0.1.4
+- ci: add Forgejo Actions workflow for Docker Build & Push
+
+### v0.1.3
+- Initial versioned release (corresponds to previous tag 1.3)
+
 ### v0.1.2
 - Fix: log rotation now called on every log entry
 - Fix: relative paths from inotify always resolved to absolute
