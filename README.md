@@ -54,16 +54,16 @@ docker run -d \
 
 ## Changelog
 
-### 1.2
+### v0.1.2
 - Fix: log rotation now called on every log entry
 - Fix: relative paths from inotify always resolved to absolute
 - Improved: case-insensitive FLAC extension matching
 
-### 1.1
+### v0.1.1
 - Added log rotation
 - Added Healthcheck
 
-### 1.0
+### v0.1.0
 - Initial release
 
 ---

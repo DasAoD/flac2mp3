@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Dockerfile'
+      - 'watcher.sh'
   workflow_dispatch:
 
 jobs:
