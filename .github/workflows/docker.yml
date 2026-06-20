@@ -35,7 +35,7 @@ jobs:
           # Create tag via Forgejo API instead of git push
           curl -s -X POST \
             "${{ github.server_url }}/api/v1/repos/${{ github.repository }}/tags" \
-            -H "Authorization: token ${{ secrets.FORGEJO_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "{\"tag_name\": \"$NEW_TAG\", \"target\": \"${{ github.sha }}\"}"
 
