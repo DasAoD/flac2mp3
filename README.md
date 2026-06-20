@@ -1,5 +1,9 @@
 # flac2mp3-watcher
 
+> **📌 Mirror-Hinweis:** Dieses Repository ist ein automatischer Spiegel.
+> Die primäre Entwicklung findet auf **[git.uliana.de/DasAoD/flac2mp3](https://git.uliana.de/DasAoD/flac2mp3)** statt.
+> Issues und Pull Requests bitte dort öffnen.
+
 A lightweight Docker container that watches a directory tree for FLAC files and automatically converts them to MP3 (320k CBR) in-place. The source FLAC file is deleted after a successful conversion.
 
 Built on Alpine Linux with `ffmpeg` and `inotify-tools`. Unraid-friendly (runs as UID 99 / GID 100).
@@ -38,63 +42,11 @@ docker run -d \
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ROOT` | `/media` | Directory to watch (must be mounted) |
+| `ROOT` | `/media` | Directory to watch |
 | `UMASK_VAL` | `002` | File creation umask |
 | `LOGFILE` | `/config/flac2mp3-watcher.log` | Log file path |
-| `LOG_MAX_MB` | `10` | Max log size in MB before rotation |
+| `LOG_MAX_MB` | `10` | Max log size in MB |
 | `LOG_BACKUPS` | `3` | Number of rotated log files to keep |
-
----
-
-## Volumes
-
-| Container path | Purpose |
-|----------------|---------|
-| `/media` | Music directory to watch (mount your FLAC folder here) |
-| `/config` | Log file storage |
-
----
-
-## Unraid Template
-
-```
-Repository:   dasaod/flac2mp3:latest
-Network:      Bridge
-
-Volumes:
-  /path/to/music        → /media   (RW)
-  /mnt/user/appdata/flac2mp3 → /config  (RW)
-
-Environment:
-  ROOT        = /media
-  UMASK_VAL   = 002
-  LOGFILE     = /config/flac2mp3-watcher.log
-  LOG_MAX_MB  = 10
-  LOG_BACKUPS = 3
-```
-
----
-
-## Build
-
-```bash
-# Build locally
-docker build -t dasaod/flac2mp3:1.2 -t dasaod/flac2mp3:latest .
-
-# Push to Docker Hub
-docker push dasaod/flac2mp3:1.2
-docker push dasaod/flac2mp3:latest
-```
-
----
-
-## How It Works
-
-1. On startup, an initial scan converts all existing `.flac` files under `ROOT`
-2. `inotifywait` then watches for new or updated files (`CLOSE_WRITE`, `CREATE`, `MOVED_TO`)
-3. When a `.flac` file is detected, `ffmpeg` converts it to `.mp3` (320k CBR) in the same directory
-4. On success, the original `.flac` is deleted
-5. Log rotation runs automatically when the log exceeds `LOG_MAX_MB`
 
 ---
 
@@ -103,13 +55,11 @@ docker push dasaod/flac2mp3:latest
 ### 1.2
 - Fix: log rotation now called on every log entry
 - Fix: relative paths from inotify always resolved to absolute
-- Improved: case-insensitive FLAC extension matching via `nocasematch`
+- Improved: case-insensitive FLAC extension matching
 
 ### 1.1
-- Added log rotation (`LOG_MAX_MB`, `LOG_BACKUPS`)
-- Added Dockerfile with embedded `watcher.sh` (no install on start)
+- Added log rotation
 - Added Healthcheck
-- Improved path handling
 
 ### 1.0
 - Initial release
