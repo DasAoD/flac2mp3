@@ -13,31 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get latest tag and bump version
-        id: tag
-        run: |
-          git fetch --tags
-          LATEST=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
-          if [ -z "$LATEST" ]; then
-            NEW_TAG="v0.1.0"
-          else
-            MAJOR=$(echo $LATEST | cut -d. -f1 | tr -d v)
-            MINOR=$(echo $LATEST | cut -d. -f2)
-            PATCH=$(echo $LATEST | cut -d. -f3)
-            PATCH=$((PATCH + 1))
-            NEW_TAG="v${MAJOR}.${MINOR}.${PATCH}"
-          fi
-          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-          echo "new_version=${NEW_TAG#v}" >> $GITHUB_OUTPUT
-          # Create tag via Forgejo API instead of git push
-          curl -s -X POST \
-            "${{ github.server_url }}/api/v1/repos/${{ github.repository }}/tags" \
-            -H "Authorization: token ${{ secrets.GIT_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"tag_name\": \"$NEW_TAG\", \"target\": \"${{ github.sha }}\"}"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -53,9 +28,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            dasaod/flac2mp3:latest
-            dasaod/flac2mp3:${{ steps.tag.outputs.new_version }}
+          tags: dasaod/flac2mp3:latest
 
       - name: Update Docker Hub README
         run: |
